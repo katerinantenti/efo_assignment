@@ -1,0 +1,76 @@
+# ============================================================================
+# EFO Data Pipeline - Docker Compose Configuration
+# ============================================================================
+# Orchestrates PostgreSQL database and Python pipeline application
+# Usage: docker compose up --build
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: efo-pipeline-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-efo_data}
+      POSTGRES_USER: ${DB_USER:-efo_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_pipeline_password_2024}
+    volumes:
+      # Persist database data
+      - postgres_data:/var/lib/postgresql/data
+      # Mount init script for schema creation
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-efo_user} -d ${DB_NAME:-efo_data}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - efo-network
+
+  # Python Pipeline Application Service
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: efo-pipeline-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database connection (uses postgres service name as host)
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-efo_data}
+      DB_USER: ${DB_USER:-efo_user}
+      DB_PASSWORD: ${DB_PASSWORD:-secure_pipeline_password_2024}
+      
+      # OLS API configuration
+      OLS_BASE_URL: ${OLS_BASE_URL:-https://www.ebi.ac.uk/ols4/api}
+      OLS_REQUEST_DELAY: ${OLS_REQUEST_DELAY:-0.1}
+      
+      # Pipeline configuration
+      BATCH_SIZE: ${BATCH_SIZE:-250}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      EXECUTION_MODE: ${EXECUTION_MODE:-test}
+      RECORD_LIMIT: ${RECORD_LIMIT:-100}
+    env_file:
+      - .env
+    networks:
+      - efo-network
+    # Pipeline runs once and exits
+    # For repeated runs, use: docker compose up pipeline
+    restart: "no"
+
+# Named volume for database persistence
+volumes:
+  postgres_data:
+    driver: local
+
+# Network for service communication
+networks:
+  efo-network:
+    driver: bridge
+
