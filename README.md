@@ -244,17 +244,7 @@ efo-pipeline/
 │   │
 │   └── loaders/             # Database operations
 │       └── postgres_loader.py
-│
-└── specs/                   # Design documentation
-    └── 001-data-engineering-assessment/
-        ├── spec.md          # Feature specification
-        ├── plan.md          # Implementation plan
-        ├── data-model.md    # Database design
-        ├── research.md      # Technical decisions
-        ├── quickstart.md    # Detailed setup guide
-        ├── tasks.md         # Task breakdown
-        └── contracts/
-            └── schema.sql   # Complete DDL
+
 ```
 
 ---
