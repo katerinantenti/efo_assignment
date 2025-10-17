@@ -28,10 +28,10 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=efo_data
 DB_USER=efo_user
-DB_PASSWORD=efo_secure_password_2024
+DB_PASSWORD=efo_secure_password_2025
 
 # OLS API Configuration
-OLS_BASE_URL=https://www.ebi.ac.uk/ols/api
+OLS_BASE_URL=https://www.ebi.ac.uk/ols4/api
 OLS_REQUEST_DELAY=0.05
 
 # Pipeline Configuration
@@ -55,8 +55,8 @@ docker compose up --build
 - ✅ Start PostgreSQL database
 - ✅ Initialize the database schema
 - ✅ Fetch all **88,707 EFO terms** from the OLS API
-- ✅ Extract **238,129 synonyms**
-- ✅ Extract **106,615 parent relationships** (is_a links)
+- ✅ Extract **49,294 synonyms**
+- ✅ Extract **104,158 parent relationships** (is_a links)
 - ✅ Extract **8,736 MeSH cross-references**
 
 **⏱️ Total time: ~7-10 minutes**
@@ -104,7 +104,7 @@ Connect with these credentials:
 - **Port:** `5433`
 - **Database:** `efo_data`
 - **Username:** `efo_user`
-- **Password:** `efo_secure_password_2024`
+- **Password:** `efo_secure_password_2025`
 
 ---
 
@@ -136,32 +136,6 @@ The pipeline will:
 - Compare content hashes of existing terms
 - Only update changed terms
 - Skip unchanged terms for efficiency
-
----
-
-## Expected Log Output
-
-```
-Phase 1: Extracting and loading terms with synonyms
-├─ Fetching from OLS API...
-├─ Processing in batches of 250
-└─ [INFO] Phase 1 complete: 88707 inserted
-
-Phase 1.5: Batch fetching parent relationships (async)
-├─ Fetching parents for 81528 terms
-└─ [INFO] Successfully fetched parents for 81528 terms
-
-Phase 2: Processing ontology relationships
-├─ Building IRI-to-ID mapping...
-├─ Processing relationships...
-├─ Processing MeSH cross-references for 8539 terms...
-└─ [INFO] Phase 2 complete
-
-PIPELINE EXECUTION COMPLETE
-├─ Terms fetched: 88707
-├─ Terms inserted: 88707
-└─ Terms updated: 0
-```
 
 ---
 
@@ -233,14 +207,7 @@ GROUP BY t.id, t.term_id, t.label, t.description;
 
 ---
 
-## Expected Results (Full Dataset)
 
-| Table | Record Count | Description |
-|-------|--------------|-------------|
-| `efo_terms` | 88,707 | Core EFO ontology terms |
-| `efo_synonyms` | 238,129 | Alternative names for terms |
-| `efo_relationships` | 106,615 | Parent-child (is_a) relationships |
-| `mesh_cross_references` | 8,736 | MeSH database cross-references |
 
 ---
 
@@ -315,7 +282,7 @@ For questions or issues:
 
 ---
 
-**Project Repository**: https://github.com/your-username/efo-data-pipeline (update with actual URL)
+
 
 **Last Updated**: October 2025
 
